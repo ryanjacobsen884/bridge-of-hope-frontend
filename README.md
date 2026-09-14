@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# The Bridge of Hope Foundation — frontend
 
-## Getting Started
+Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS v4.
 
-First, run the development server:
+## Status
+
+Static pages ported faithfully from the approved HTML in `../files/`
+(home, give, privacy — copy, structure and design tokens unchanged, see
+`app/globals.css` for the ported `:root` tokens). The donation form
+(`components/GiveForm.tsx`, a client component; the rest of `/give` is a
+Server Component) is wired to the real backend API, `/updates` and
+`/updates/[slug]` pull from the backend's posts endpoint, and
+`/manage/[token]` is the working donor self-service/cancel page. See
+`../backend/CONTENT-TODO.md` for every real-world fact still needed before
+this can go live, and `../files/PROMPT.md` for the full build spec.
+
+One deliberate deviation from the spec's file tree: `our-work`,
+`safeguarding`, `who-we-are` and `accountability` are sections on the home
+page (`#work`, `#safeguarding`, `#people`, `#accountability`), matching the
+single-page structure of the approved `index.html`, rather than separate
+routes — splitting them into their own pages would have meant inventing a
+different content layout than what was approved.
+
+## Local setup
 
 ```bash
+npm install
+copy .env.example .env.local     # point BACKEND_URL / NEXT_PUBLIC_BACKEND_URL at your backend
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Requires the backend running (see `../backend/README.md`) for the give
+form, `/updates`, and `/manage/[token]` to have real data — the static
+pages (home shell, privacy) work without it.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Payment rails on the give page
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`NEXT_PUBLIC_{STRIPE,PAYPAL,MPESA}_ENABLED` mirror the backend's feature
+flags (kept in sync manually until real credentials exist — see
+`../backend/CONTENT-TODO.md`). With all three off, the form uses the
+backend's in-house `test` rail so the full donate → receipt → cancel flow
+is exercisable end to end; a visible on-page notice says so.
 
-## Learn More
+## Build & deploy (Vercel)
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Deploy via the Vercel CLI or dashboard, with `BACKEND_URL` /
+`NEXT_PUBLIC_BACKEND_URL` set to the deployed backend's URL (Render) and
+`NEXT_PUBLIC_SITE_URL` set to the production frontend URL.
